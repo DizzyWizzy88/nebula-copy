@@ -1,0 +1,13 @@
+# Dependencies
+node_modules/
+package-lock.json
+
+# Environment variables & API keys
+.env
+.env.local
+
+# Build outputs & system files
+dist/
+build/
+.DS_Store
+*.log
