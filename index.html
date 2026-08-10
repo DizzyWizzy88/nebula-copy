@@ -155,9 +155,12 @@
 
         <div id="output"></div>
 
-        <div class="pricing-banner" style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
-            <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.9rem;">Upgrade to Pro for unlimited content generation</p>
-            <a href="https://buy.stripe.com/7sYbIUfzT8bG4oubOy2sM00" target="_blank" style="display: inline-block; padding: 12px 24px; background: linear-gradient(90deg, #00d2ff, #9d4edd); color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;">
+        <div class="pricing-banner"
+            style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.9rem;">Upgrade to Pro for unlimited
+                content generation</p>
+            <a href="https://buy.stripe.com/7sYbIUfzT8bG4oubOy2sM00" target="_blank"
+                style="display: inline-block; padding: 12px 24px; background: linear-gradient(90deg, #00d2ff, #9d4edd); color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;">
                 Upgrade to Pro – $12.99/mo
             </a>
         </div>
@@ -165,31 +168,54 @@
     </main>
 
     <script>
-    async function generateCopy() {
-      const prompt = document.getElementById('prompt').value;
-      const tone = document.getElementById('tone').value;
-      const outputDiv = document.getElementById('output');
+        async function generateCopy() {
+            const prompt = document.getElementById('prompt').value;
+            const tone = document.getElementById('tone').value;
+            const outputDiv = document.getElementById('output');
 
-      if (!prompt) {
-        alert('Please enter a prompt.');
-        return;
-      }
+            if (!prompt) {
+                alert('Please enter a prompt.');
+                return;
+            }
 
-      outputDiv.style.display = 'block';
-      outputDiv.innerText = 'Generating copy...';
+            let usageCount = parseInt(localStorage.getItem('nebula_free_uses') || '0', 10);
 
-      try {
-        const response = await fetch('/api/generate', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ prompt, tone })
-        });
-        const data = await response.json();
-        outputDiv.innerText = data.result || 'No output returned.';
-      } catch (err) {
-        outputDiv.innerText = 'Error generating content. Check server connection.';
-      }
-    }
+            if (usageCount >= 1) {
+                alert('You have used your 1 free generation! Upgrade to Pro for unlimited access');
+                const banner = document.querySelector('.pricing-banner');
+                if (banner) {
+                    banner.scrollIntoView({ behavior: 'smooth ' });
+                }
+                return;
+            }
+
+            outputDiv.innerText = 'Generating high converting copy...';
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ prompt, tone })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    if (data.requiresUpgrade) {
+                        alert(data.error);
+                        document.querySelector('.pricing-banner')?.scrollIntoView({ behavior: 'smooth' });
+                        return;
+                    }
+                    throw new Error(data.error || 'Failed to generate copy.');
+                }
+
+                localStorage.setItem('nebula_free_uses', (usageCount + 1).toString());
+                outputDiv.innerText = data.result;
+
+            } catch (err) {
+                outputDiv.innerText = `Error: ${err.message}`;
+            }
+        }
     </script>
 
 </body>

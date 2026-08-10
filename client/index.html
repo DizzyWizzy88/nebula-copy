@@ -175,8 +175,18 @@
         return;
       }
 
-      outputDiv.style.display = 'block';
-      outputDiv.innerText = 'Generating copy...';
+      let usageCount = parseInt(localStorage.getItem('nebula_free_uses') || '0', 10);
+
+      if (usageCount >= 1) {
+        alert('You have used your 1 free generation! Upgrade to Pro for unlimited access');
+        const banner = document.querySelector('.pricing-banner');
+        if (banner) {
+            banner.scrollIntoView({ behavior: 'smooth '});
+        }
+        return;
+      }
+
+      outputDiv.innerText = 'Generating high converting copy...';
 
       try {
         const response = await fetch('/api/generate', {
@@ -184,10 +194,23 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ prompt, tone })
         });
+
         const data = await response.json();
-        outputDiv.innerText = data.result || 'No output returned.';
+
+        if (!response.ok) {
+            if (data.requiresUpgrade) {
+                alert(data.error);
+                document.querySelector('.pricing-banner')?.scrollIntoView({ behavior: 'smooth' });
+                return;
+            }
+            throw new Error(data.error || 'Failed to generate copy.');
+        }
+
+        localStorage.setItem('nebula_free_uses', (usageCount + 1).toString());
+        outputDiv.innerText = data.result;
+
       } catch (err) {
-        outputDiv.innerText = 'Error generating content. Check server connection.';
+        outputDiv.innerText = `Error: ${err.message}`;
       }
     }
     </script>
