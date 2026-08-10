@@ -9,26 +9,26 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
-// Serve static frontend files from client directory
-app.use(express.static(path.join(__dirname, '../client')));
+// Serve static frontend files (index.html, images, CSS) from the root directory
+app.use(express.static(path.join(__dirname, '..')));
 
-// API endpoint for content generation
+// API Endpoint
 app.post('/api/generate', (req, res) => {
     const { prompt, tone } = req.body;
-
     if (!prompt) {
         return res.status(400).json({ error: 'Prompt is required' });
     }
 
-    // Placeholder responses based on selected tone
-    const sampleCopy = `[${tone} Mode]\n\n` +
-        `Transforming your idea: "${prompt}"\n\n` +
-        `Here is your generated copy optimized for high engagement and clarity. ` +
-        `Nebula Copy empowers your brand to reach beyond conventional limitations.`;
+    res.json({
+        result: `[${tone || 'Standard'} Tone]\n\nGenerated copy for: "${prompt}"\n\nNebula Copy expands your reach with high-converting copy.`
+    });
+});
 
-    res.json({ result: sampleCopy });
+// Fallback route to return index.html for any frontend requests
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, '../index.html'));
 });
 
 app.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running on port ${PORT}`);
 });
