@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Nebula Copy - Create Content Beyond Limits</title>
+    <style>
+        :root {
+            --bg-color: #0b0d17;
+            --card-bg: #151828;
+            --accent-blue: #00d2ff;
+            --accent-purple: #9d4edd;
+            --text-main: #ffffff;
+            --text-muted: #a0a5c0;
+        }
+
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--text-main);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        header {
+            text-align: center;
+            margin: 40px 0 20px;
+        }
+
+        header img {
+            max-width: 180px;
+            height: auto;
+            margin-bottom: 15px;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        p.subtitle {
+            color: var(--text-muted);
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        main {
+            background-color: var(--card-bg);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            padding: 30px;
+            width: 100%;
+            max-width: 600px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            margin-top: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        textarea,
+        select {
+            width: 100%;
+            padding: 12px;
+            background-color: #0b0d17;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            border-radius: 6px;
+            color: #fff;
+            font-size: 1rem;
+            outline: none;
+        }
+
+        textarea:focus,
+        select:focus {
+            border-color: var(--accent-blue);
+        }
+
+        button {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(90deg, var(--accent-blue), var(--accent-purple));
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-weight: bold;
+            font-size: 1rem;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        button:hover {
+            opacity: 0.9;
+        }
+
+        #output {
+            margin-top: 25px;
+            padding: 15px;
+            background-color: #0b0d17;
+            border-radius: 6px;
+            border-left: 4px solid var(--accent-blue);
+            display: none;
+            white-space: pre-wrap;
+        }
+    </style>
+</head>
+
+<body>
+
+    <header>
+        <img src="Nebula_Copy.png" alt="Nebula Copy Logo">
+        <h1>Nebula Copy</h1>
+        <p class="subtitle">Create Content Beyond Limits</p>
+    </header>
+
+    <main>
+        <div class="form-group">
+            <label for="prompt">Enter your copy topic or prompt:</label>
+            <textarea id="prompt" rows="4"
+                placeholder="e.g. Write a catchy marketing post for a new software launch..."></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="tone">Select Tone:</label>
+            <select id="tone">
+                <option value="Professional">Professional</option>
+                <option value="Casual">Casual</option>
+                <option value="Persuasive">Persuasive</option>
+                <option value="Creative">Creative</option>
+            </select>
+        </div>
+
+        <button onclick="generateCopy()">Generate Copy</button>
+
+        <div id="output"></div>
+
+        <div class="pricing-banner" style="text-align: center; margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p style="margin-bottom: 12px; color: var(--text-muted); font-size: 0.9rem;">Upgrade to Pro for unlimited content generation</p>
+            <a href="https://buy.stripe.com/7sYbIUfzT8bG4oubOy2sM00" target="_blank" style="display: inline-block; padding: 12px 24px; background: linear-gradient(90deg, #00d2ff, #9d4edd); color: #fff; text-decoration: none; border-radius: 6px; font-weight: bold;">
+                Upgrade to Pro – $12.99/mo
+            </a>
+        </div>
+
+    </main>
+
+    <script>
+    async function generateCopy() {
+      const prompt = document.getElementById('prompt').value;
+      const tone = document.getElementById('tone').value;
+      const outputDiv = document.getElementById('output');
+
+      if (!prompt) {
+        alert('Please enter a prompt.');
+        return;
+      }
+
+      outputDiv.style.display = 'block';
+      outputDiv.innerText = 'Generating copy...';
+
+      try {
+        const response = await fetch('/api/generate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ prompt, tone })
+        });
+        const data = await response.json();
+        outputDiv.innerText = data.result || 'No output returned.';
+      } catch (err) {
+        outputDiv.innerText = 'Error generating content. Check server connection.';
+      }
+    }
+    </script>
+
+</body>
+
+</html>
